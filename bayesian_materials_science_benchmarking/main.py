@@ -1,6 +1,6 @@
 import copy
 import pandas as pd
-from config import DATA_PATH
+from config import *
 
 
 
@@ -15,7 +15,13 @@ def main() -> None:
     unique_ds = ds.groupby(feature_name)[objective_name].agg(lambda x: x.unique().mean())
     unique_ds = (unique_ds.to_frame()).reset_index()
 
-    print(unique_ds)
+    X_feature = unique_ds[feature_name].values
+    y = np.array(unique_ds[objective_name].values)
+
+    n_top = int(math.ceil(len(y)*.05))
+    top_indices = list(unique_ds.sort_values(objective_name).head(n_top).index)
+
+    
 
 
 
