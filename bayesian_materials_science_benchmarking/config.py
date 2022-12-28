@@ -9,7 +9,7 @@ DATA_PATH = Path('datasets')
 n_ensemble = 50
 n_init = 2
 rng = np.random.default_rng(2021)
-seed_list = rng.random(n_ensemble)
+seed_list = list(rng.integers(1000, size=n_ensemble))
 
 # random forest params
 n_est = 100
