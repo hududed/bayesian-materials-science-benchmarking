@@ -141,3 +141,14 @@ def TopPercent(x_top_count: list[list[float]], n_top: int, n_dataset: int) -> li
                 x_[i].append(1.0)
 
     return x_
+
+
+def EF(x: np.ndarray, n_top: int):
+    n_eval = len(x)
+    TopPercent_RS = perf_random(n_eval, n_top)[0]
+
+    l_EF = []
+    for j in np.arange(n_eval):
+        l_EF.append(x[j] / TopPercent_RS[j])
+
+    return l_EF
