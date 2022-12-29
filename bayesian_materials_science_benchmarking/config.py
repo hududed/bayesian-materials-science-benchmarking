@@ -3,6 +3,7 @@ from pathlib import Path
 import numpy as np
 
 DATA_PATH = Path('datasets')
+FIG_PATH = Path('figures')
 
 
 # benchmarking framework params

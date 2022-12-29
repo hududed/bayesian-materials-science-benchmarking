@@ -2,9 +2,10 @@ from matplotlib import font_manager
 import matplotlib.pyplot as plt
 import numpy as np
 from perf_utils import EF, AF_interp1d, perf_random
+from config import FIG_PATH
 
 
-def plot_top_cycle(n_dataset: int, n_top: int, aggr_results: tuple[np.ndarray,  np.ndarray, np.ndarray, np.ndarray, np.ndarray]) -> None:
+def plot_top_cycle(n_dataset: int, n_top: int, aggr_results: tuple[np.ndarray,  np.ndarray, np.ndarray, np.ndarray, np.ndarray], af_name: str, dataset_name: str) -> None:
 
     fig = plt.figure(figsize=(12, 12))
     ax0 = fig.add_subplot(111)
@@ -18,12 +19,14 @@ def plot_top_cycle(n_dataset: int, n_top: int, aggr_results: tuple[np.ndarray,  
         aggr_results[2].astype(np.double) / 0.005, 0) * 0.005, color='#006d2c', alpha=0.2)
 
     # the rest are for visualization purposes, please adjust for different needs
-    font = font_manager.FontProperties(family='Arial', size=26, style='normal')
+    font = font_manager.FontProperties(
+        family='Arial', size=26, style='normal')
     leg = ax0.legend(prop=font, borderaxespad=0,  labelspacing=0.3,
                      handlelength=1.2, handletextpad=0.3, frameon=False, loc=(0, 0.81))
     for line in leg.get_lines():
         line.set_linewidth(4)
-    ax0.set_ylabel("Top%", fontname="Arial", fontsize=30, rotation='vertical')
+    ax0.set_ylabel("Top%", fontname="Arial",
+                   fontsize=30, rotation='vertical')
     plt.hlines(0.8, 0, 480, colors='k', linestyles='--', alpha=0.2)
     ax0.set_xlim([100, 300])
     ax0.set_ylim([0, 1.05])
@@ -38,10 +41,11 @@ def plot_top_cycle(n_dataset: int, n_top: int, aggr_results: tuple[np.ndarray,  
     # plt.yticks([0, 0.2, 0.4, 0.6, 0.8, 1.0], ['0', '0.2',
     #            '0.4', '0.6', '0.8', '1.0'], fontname='Arial')
 
-    plt.savefig('top_cycle.png', dpi=300, format="png")
+    plt.savefig(
+        FIG_PATH / f'top_{af_name}_{dataset_name}.png', dpi=300, format="png")
 
 
-def plot_EF(n_dataset: int, n_top: int, aggr_results: tuple[np.ndarray,  np.ndarray, np.ndarray, np.ndarray, np.ndarray]) -> None:
+def plot_EF(n_dataset: int, n_top: int, aggr_results: tuple[np.ndarray,  np.ndarray, np.ndarray, np.ndarray, np.ndarray], af_name: str, dataset_name: str) -> None:
 
     fig = plt.figure(figsize=(12, 12))
     ax0 = fig.add_subplot(111)
@@ -71,10 +75,11 @@ def plot_EF(n_dataset: int, n_top: int, aggr_results: tuple[np.ndarray,  np.ndar
     # plt.yticks([0, 1, 2, 4, 6, 8, 10], ['0', '1', '2',
     #            '4', '6', '8', '10'], fontname='Arial')
 
-    plt.savefig('ef.png', dpi=300, format="png")
+    plt.savefig(
+        FIG_PATH / f'ef_{af_name}_{dataset_name}.png', dpi=300, format="png")
 
 
-def plot_AF(n_top: int, aggr_results: tuple[np.ndarray,  np.ndarray, np.ndarray, np.ndarray, np.ndarray]) -> None:
+def plot_AF(n_top: int, aggr_results: tuple[np.ndarray,  np.ndarray, np.ndarray, np.ndarray, np.ndarray], af_name: str, dataset_name: str) -> None:
     fig = plt.figure(figsize=(12, 12))
     ax0 = fig.add_subplot(111)
 
@@ -101,4 +106,5 @@ def plot_AF(n_top: int, aggr_results: tuple[np.ndarray,  np.ndarray, np.ndarray,
     #            '0.4', '0.6', '0.8', '1.0'], fontname='Arial')
     # plt.yticks([0, 1, 2, 4, 6, 8, 10], ['0', '1', '2',
     #            '4', '6', '8', '10'], fontname='Arial')
-    plt.savefig('af.png', dpi=300, format="png")
+    plt.savefig(
+        FIG_PATH/f'af_{af_name}_{dataset_name}.png', dpi=300, format="png")
