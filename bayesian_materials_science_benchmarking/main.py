@@ -1,18 +1,18 @@
 import copy
+from enum import Enum, auto
 import random
+from typing import Any, Dict
 import pandas as pd
 import numpy as np
-from sklearn import preprocessing
+from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestRegressor
 from sm_utils import EI
-from config import DATA_PATH, n_ensemble, n_init, n_est, seed_list
+from config import DATA_PATH, n_ensemble, n_init, n_est, seed_list, categories
 import math
 from time import perf_counter
 
-# def train_ensemble()
 
-
-def load_data(name: str, invert_y: bool = False) -> tuple[pd.DataFrame, list[str], str]:
+def load_data(name: str, invert_y: bool) -> tuple[pd.DataFrame, list[str], str]:
     raw_dataset = pd.read_csv(DATA_PATH / f"{name}_dataset.csv")
     feature_name = list(raw_dataset.columns)[:-1]
     objective_name = list(raw_dataset.columns)[-1]
@@ -24,6 +24,11 @@ def load_data(name: str, invert_y: bool = False) -> tuple[pd.DataFrame, list[str
     unique_ds = (unique_ds.to_frame()).reset_index()
 
     return unique_ds, feature_name, objective_name
+
+
+def categorical_to_int(df: pd.DataFrame, col_name: str, categories: Dict[str, Any]) -> pd.DataFrame:
+    df[col_name] = df[col_name].replace(categories)
+    return df
 
 
 def train_ensemble(n_ensemble: int, n_init: int, n_dataset: int, X_feature: np.ndarray,
@@ -80,7 +85,8 @@ def train_ensemble(n_ensemble: int, n_init: int, n_dataset: int, X_feature: np.n
 
             y_best = np.min(y_observed)
 
-            s_scaler = preprocessing.StandardScaler()
+            s_scaler = StandardScaler()
+
             X_train = s_scaler.fit_transform(X_observed)
             y_train = s_scaler.fit_transform([[i] for i in y_observed])
 
@@ -141,9 +147,15 @@ def train_ensemble(n_ensemble: int, n_init: int, n_dataset: int, X_feature: np.n
 
 
 def main() -> None:
-    dataset_name = 'Crossed barrel'
-    unique_ds, feature_name, objective_name = load_data(dataset_name)
+    dataset_name = 'GOQ'
+    unique_ds, feature_name, objective_name = load_data(
+        dataset_name, invert_y=True)
+
+    unique_ds = categorical_to_int(
+        unique_ds, col_name='gas', categories=categories)
     X_feature = unique_ds[feature_name].values
+    print(X_feature)
+
     y = np.array(unique_ds[objective_name].values)
     n_dataset = len(unique_ds)
     print(f"Number of data in set: {n_dataset}")

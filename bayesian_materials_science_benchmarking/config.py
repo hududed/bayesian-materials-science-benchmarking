@@ -13,3 +13,10 @@ seed_list = list(rng.integers(1000, size=n_ensemble))
 
 # random forest params
 n_est = 100
+
+# data preprocessing params
+categories = {
+    'Argon': 1,
+    'Nitrogen': 2,
+    'Air': 3,
+}
