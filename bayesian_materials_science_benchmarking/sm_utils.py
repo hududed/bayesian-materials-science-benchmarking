@@ -16,7 +16,14 @@ def RF_pred(X: np.ndarray, RF_model: RandomForestRegressor, n_est: int = 100) ->
 
 def EI(X: np.ndarray, RF_model: RandomForestRegressor, y_best: float | np.ndarray, n_est: int) -> float:
     mean, std = RF_pred(X, RF_model, n_est)
-    z = (y_best - mean)/std
+    with np.errstate(divide='raise'):
+        try:
+            z = (y_best - mean)/std
+        except FloatingPointError:  # divide by zero numpy warning
+            std = 1e-16
+            z = (y_best - mean)/std
+            print(f"\n !! DIVIDE BY ZERO {mean} {std} {z}")
+
     return (y_best - mean) * norm.cdf(z) + std * norm.pdf(z)
 
 
@@ -27,5 +34,11 @@ def LCB(X: np.ndarray, RF_model: RandomForestRegressor, ratio: float, n_est: int
 
 def PI(X: np.ndarray, RF_model: RandomForestRegressor, y_best: float | np.ndarray, n_est: int) -> float:
     mean, std = RF_pred(X, RF_model, n_est)
-    z = (y_best - mean)/std
+    with np.errstate(divide='raise'):
+        try:
+            z = (y_best - mean)/std
+        except FloatingPointError:
+            std = 1e-16
+            z = (y_best - mean)/std
+            print(f"\n !! DIVIDE BY ZERO {mean} {std} {z}")
     return norm.cdf(z)
