@@ -1,3 +1,4 @@
+import inspect
 import numpy as np
 from scipy.stats import norm
 from sklearn.ensemble import RandomForestRegressor
@@ -14,7 +15,7 @@ def RF_pred(X: np.ndarray, RF_model: RandomForestRegressor, n_est: int = 100) ->
     return mean, std
 
 
-def EI(X: np.ndarray, RF_model: RandomForestRegressor, y_best: float | np.ndarray, n_est: int) -> float:
+def EI(X: np.ndarray, RF_model: RandomForestRegressor, y_best: float | np.ndarray, n_est: int) -> tuple[float, str]:
     mean, std = RF_pred(X, RF_model, n_est)
     with np.errstate(divide='raise'):
         try:
@@ -23,16 +24,17 @@ def EI(X: np.ndarray, RF_model: RandomForestRegressor, y_best: float | np.ndarra
             std = 1e-16
             z = (y_best - mean)/std
             print(f"\n !! DIVIDE BY ZERO {mean} {std} {z}")
+    func_name = inspect.currentframe().f_code.co_name
+    return (y_best - mean) * norm.cdf(z) + std * norm.pdf(z), func_name
 
-    return (y_best - mean) * norm.cdf(z) + std * norm.pdf(z)
 
-
-def LCB(X: np.ndarray, RF_model: RandomForestRegressor, ratio: float, n_est: int) -> float:
+def LCB(X: np.ndarray, RF_model: RandomForestRegressor, ratio: float, n_est: int) -> tuple[float, str]:
     mean, std = RF_pred(X, RF_model, n_est)
-    return - mean + ratio * std
+    func_name = inspect.currentframe().f_code.co_name
+    return - mean + ratio * std, func_name
 
 
-def PI(X: np.ndarray, RF_model: RandomForestRegressor, y_best: float | np.ndarray, n_est: int) -> float:
+def PI(X: np.ndarray, RF_model: RandomForestRegressor, y_best: float | np.ndarray, n_est: int) -> tuple[float, str]:
     mean, std = RF_pred(X, RF_model, n_est)
     with np.errstate(divide='raise'):
         try:
@@ -41,4 +43,5 @@ def PI(X: np.ndarray, RF_model: RandomForestRegressor, y_best: float | np.ndarra
             std = 1e-16
             z = (y_best - mean)/std
             print(f"\n !! DIVIDE BY ZERO {mean} {std} {z}")
-    return norm.cdf(z)
+    func_name = inspect.currentframe().f_code.co_name
+    return norm.cdf(z), func_name

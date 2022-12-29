@@ -2,7 +2,7 @@ from time import perf_counter
 import numpy as np
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.preprocessing import StandardScaler
-from model_utils import EI
+from model_utils import EI, PI
 
 
 def train_ensemble(n_ensemble: int, n_init: int, n_dataset: int, n_est: int, X_feature: np.ndarray,
@@ -53,8 +53,8 @@ def train_ensemble(n_ensemble: int, n_init: int, n_dataset: int, n_est: int, X_f
             top_count.append(top_sofar)
             index_learn.remove(i)
 
-    #     for each of the the rest of (N - n_initial) learning cycles
-    #     this for loop ends when all candidates in pool are observed
+        # for each of the the rest of (N - n_initial) learning cycles
+        # this for loop ends when all candidates in pool are observed
         for idx, i in enumerate(np.arange(len(index_learn))):
 
             y_best = np.min(y_observed)
@@ -70,17 +70,18 @@ def train_ensemble(n_ensemble: int, n_init: int, n_dataset: int, n_est: int, X_f
             RF_model = RandomForestRegressor(n_estimators=n_est, n_jobs=-1)
             RF_model.fit(X_train, y_train.ravel())
 
-    #         by evaluating acquisition function values at candidates remaining in pool
-    #         we choose candidate with larger acquisition function value to be observed next
+        # by evaluating acquisition function values at candidates remaining in pool
+        # we choose candidate with larger acquisition function value to be observed next
             next_index = None
             max_ac = -10**10
             for idx, j in enumerate(index_learn):
                 X_j = X_feature[j]
                 y_j = y[j]
-    #             #TODO: select Acquisiton Function for BO
+                # TODO: select Acquisiton Function for BO
 
-                ac_value = EI(X_j, RF_model, y_best, n_est)
-                # ac_value = LCB(X_j, RF_model, 10)
+                # ac_value, ac_name = EI(X_j, RF_model, y_best, n_est)
+                ac_value, ac_name = PI(X_j, RF_model, y_best, n_est)
+                # ac_value, func_name = LCB(X_j, RF_model, 10)
 
                 if max_ac <= ac_value:
                     # print(f"old max_ac: {max_ac}, new ac: {ac_value}, next index: {j} X_j: {X_j} ")
@@ -107,8 +108,6 @@ def train_ensemble(n_ensemble: int, n_init: int, n_dataset: int, n_est: int, X_f
         y_collection.append(y_observed)
         TopCount_collection.append(top_count)
 
-        # assert len()
-
         print(
             f"### COLL IDX: {len(index_collection)}\n X: {len(X_collection)}\n y: {len(y_collection)}\n top: {len(TopCount_collection)} ")
 
@@ -118,4 +117,4 @@ def train_ensemble(n_ensemble: int, n_init: int, n_dataset: int, n_est: int, X_f
 
     master = np.array([index_collection, X_collection,
                       y_collection, TopCount_collection, total_time], dtype=object)
-    np.save(f"EI_{dataset_name}", master)
+    np.save(f"{ac_name}_{dataset_name}", master)
