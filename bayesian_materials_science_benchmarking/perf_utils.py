@@ -1,9 +1,10 @@
 import math
 import numpy as np
 from config import seed_list
+from scipy.interpolate import interp1d
 
 
-def perf_random(n_dataset: int, n_top: int):
+def perf_random(n_dataset: int, n_top: int) -> tuple[np.ndarray, np.ndarray]:
     """ Random baseline"""
     x_random = np.arange(n_dataset)
 
@@ -144,6 +145,7 @@ def TopPercent(x_top_count: list[list[float]], n_top: int, n_dataset: int) -> li
 
 
 def EF(x: np.ndarray, n_top: int):
+    """Calculate enhancement Factor"""
     n_eval = len(x)
     TopPercent_RS = perf_random(n_eval, n_top)[0]
 
@@ -152,3 +154,61 @@ def EF(x: np.ndarray, n_top: int):
         l_EF.append(x[j] / TopPercent_RS[j])
 
     return l_EF
+
+
+def AF(x: np.ndarray, n_top: int) -> tuple[list[np.ndarray], list[float]]:
+    """Calculate acceleration factor"""
+    n_eval = len(x)
+    TopPercent_RS = list(np.round(perf_random(
+        n_eval, n_top)[0].astype(np.double) / 0.005, 0) * 0.005)
+#     We check Top% at 0.005 intervals between 0 and 1.
+    l_TopPercent = []
+    l_AF = []
+
+    x = list(np.round(x.astype(np.double) / 0.005, 0) * 0.005)
+
+    TopPercent = np.arange(0, 1.005, 0.005)
+
+    pointer_x = 0
+    pointer_rs = 0
+    for t in TopPercent:
+        if t in x and t in TopPercent_RS:
+            n_x = 0
+            n_rs = 0
+            while pointer_x < len(x):
+                if x[pointer_x] == t:
+                    pointer_x += 1
+                    n_x = pointer_x
+                    break
+                else:
+                    pointer_x += 1
+
+            while pointer_rs < len(TopPercent_RS):
+                if TopPercent_RS[pointer_rs] == t:
+                    pointer_rs += 1
+                    n_rs = pointer_rs
+                    break
+                else:
+                    pointer_rs += 1
+
+            l_TopPercent.append(t)
+
+            AF = n_rs / n_x
+            l_AF.append(AF)
+
+    return l_TopPercent, l_AF
+
+# smoothing for visualization purposes
+
+
+def AF_interp1d(n_top: int, aggr_results: tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]) -> tuple[np.ndarray, interp1d, interp1d, interp1d]:
+    f_med = interp1d(AF(aggr_results[0], n_top)[0], AF(aggr_results[0], n_top)[
+                     1], kind='linear', fill_value='extrapolate')
+#     again 0.005 intervals
+    xx_ = np.linspace(
+        min(AF(aggr_results[0], n_top)[0]), 1, 201 - int(min(AF(aggr_results[0], n_top)[0])/0.005))
+    f_low = interp1d(AF(aggr_results[1], n_top)[0], AF(aggr_results[1], n_top)[
+                     1], kind='linear', fill_value='extrapolate')
+    f_high = interp1d(AF(aggr_results[2], n_top)[0], AF(aggr_results[2], n_top)[
+                      1], kind='linear', fill_value='extrapolate')
+    return xx_, f_med, f_low, f_high

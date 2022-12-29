@@ -1,7 +1,7 @@
 from matplotlib import font_manager
 import matplotlib.pyplot as plt
 import numpy as np
-from perf_utils import EF, perf_random
+from perf_utils import EF, AF_interp1d, perf_random
 
 
 def plot_top_cycle(n_dataset: int, n_top: int, aggr_results: tuple[np.ndarray,  np.ndarray, np.ndarray, np.ndarray, np.ndarray]) -> None:
@@ -72,3 +72,33 @@ def plot_EF(n_dataset: int, n_top: int, aggr_results: tuple[np.ndarray,  np.ndar
     #            '4', '6', '8', '10'], fontname='Arial')
 
     plt.savefig('ef.png', dpi=300, format="png")
+
+
+def plot_AF(n_top: int, aggr_results: tuple[np.ndarray,  np.ndarray, np.ndarray, np.ndarray, np.ndarray]) -> None:
+    fig = plt.figure(figsize=(12, 12))
+    ax0 = fig.add_subplot(111)
+
+    ax0.plot(np.linspace(0, 1, 200), np.ones(200), '--',
+             color='black', label=None, linewidth=3)
+
+    xx_, f_med_, f_low_, f_high_ = AF_interp1d(n_top, aggr_results)
+    ax0.plot(xx_, f_med_(
+        xx_), label='GP M52 : LCB$_{\overline{2}}$', color='#006d2c', linewidth=3)
+    ax0.fill_between(xx_, f_low_(xx_), f_high_(xx_),
+                     color='#006d2c', alpha=0.2)
+
+    # the rest are for visualization purposes, please adjust for different needs
+    ax0.set_ylabel('AF', fontsize=30, rotation='horizontal',
+                   fontname='Arial', labelpad=10)
+    ax0.set_xlabel('Top%', fontsize=30, fontname='Arial')
+    # ax0.set_xlim([100, 300])
+    ax0.set_ylim([0, 2])
+    ax0.spines['right'].set_visible(False)
+    ax0.spines['top'].set_visible(False)
+    ax0.xaxis.set_tick_params(labelsize=30)
+    ax0.yaxis.set_tick_params(labelsize=30)
+    # plt.xticks([0, 0.2, 0.4, 0.6, 0.8, 1.0], ['0', '0.2',
+    #            '0.4', '0.6', '0.8', '1.0'], fontname='Arial')
+    # plt.yticks([0, 1, 2, 4, 6, 8, 10], ['0', '1', '2',
+    #            '4', '6', '8', '10'], fontname='Arial')
+    plt.savefig('af.png', dpi=300, format="png")
