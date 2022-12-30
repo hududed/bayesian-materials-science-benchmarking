@@ -49,10 +49,10 @@ def plot_top_cycle(n_dataset: int, n_top: int, results_dict: Dict[str, tuple[np.
     #            '0.4', '0.6', '0.8', '1.0'], fontname='Arial')
 
     plt.savefig(
-        FIG_PATH / f'top_{af_name}_{dataset_name}.png', dpi=300, format="png")
+        FIG_PATH / f'top_{dataset_name}.png', dpi=300, format="png")
 
 
-def plot_EF(n_dataset: int, n_top: int, aggr_results: tuple[np.ndarray,  np.ndarray, np.ndarray, np.ndarray, np.ndarray], af_name: str, dataset_name: str) -> None:
+def plot_EF(n_dataset: int, n_top: int, results_dict: Dict[str, tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]], dataset_name: str) -> None:
 
     fig = plt.figure(figsize=(12, 12))
     ax0 = fig.add_subplot(111)
@@ -60,13 +60,16 @@ def plot_EF(n_dataset: int, n_top: int, aggr_results: tuple[np.ndarray,  np.ndar
     ax0.plot(np.linspace(1, n_dataset, n_dataset), np.ones(n_dataset),
              '--', color='black', label='random baseline', linewidth=3)
 
-    ax0.plot(np.arange(n_dataset) + 1, EF(np.round(aggr_results[0].astype(
-        np.double) / 0.005, 0) * 0.005, n_top), label='GP M52 : LCB$_{\overline{2}}$', color='#006d2c', linewidth=3)
-    ax0.fill_between(np.arange(n_dataset) + 1, EF(np.round(aggr_results[1].astype(np.double) / 0.005, 0) * 0.005, n_top), EF(
-        np.round(aggr_results[2].astype(np.double) / 0.005, 0) * 0.005, n_top), color='#006d2c', alpha=0.2)
+    for af_name, aggr_results in results_dict.items():
+        ax0.plot(np.arange(n_dataset) + 1, EF(np.round(aggr_results[0].astype(
+            np.double) / 0.005, 0) * 0.005, n_top), label=f'RF : {af_name}', linewidth=3)
+        ax0.fill_between(np.arange(n_dataset) + 1, EF(np.round(aggr_results[1].astype(np.double) / 0.005, 0) * 0.005, n_top), EF(
+            np.round(aggr_results[2].astype(np.double) / 0.005, 0) * 0.005, n_top),  alpha=0.2)
 
     # the rest are for visualization purposes, please adjust for different needs
-
+    n_plots = len(results_dict)
+    cmap = mpl.colormaps["tab10"].resampled(n_plots)
+    plt.gca().set_prop_cycle(cycler('color', cmap(np.linspace(0, 1, n_plots))))
     ax0.set_ylabel('EF', fontsize=30, rotation='horizontal',
                    fontname='Arial', labelpad=10)
     ax0.set_xlabel('learning cycle $i$', fontsize=30, fontname='Arial')
@@ -83,23 +86,26 @@ def plot_EF(n_dataset: int, n_top: int, aggr_results: tuple[np.ndarray,  np.ndar
     #            '4', '6', '8', '10'], fontname='Arial')
 
     plt.savefig(
-        FIG_PATH / f'ef_{af_name}_{dataset_name}.png', dpi=300, format="png")
+        FIG_PATH / f'EF_{dataset_name}.png', dpi=300, format="png")
 
 
-def plot_AF(n_top: int, aggr_results: tuple[np.ndarray,  np.ndarray, np.ndarray, np.ndarray, np.ndarray], af_name: str, dataset_name: str) -> None:
+def plot_AF(n_top: int, results_dict: Dict[str, tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]], dataset_name: str) -> None:
     fig = plt.figure(figsize=(12, 12))
     ax0 = fig.add_subplot(111)
 
     ax0.plot(np.linspace(0, 1, 200), np.ones(200), '--',
              color='black', label=None, linewidth=3)
 
-    xx_, f_med_, f_low_, f_high_ = AF_interp1d(n_top, aggr_results)
-    ax0.plot(xx_, f_med_(
-        xx_), label='GP M52 : LCB$_{\overline{2}}$', color='#006d2c', linewidth=3)
-    ax0.fill_between(xx_, f_low_(xx_), f_high_(xx_),
-                     color='#006d2c', alpha=0.2)
+    for af_name, aggr_results in results_dict.items():
+        xx_, f_med_, f_low_, f_high_ = AF_interp1d(n_top, aggr_results)
+        ax0.plot(xx_, f_med_(
+            xx_), label=f'RF : {af_name}',  linewidth=3)
+        ax0.fill_between(xx_, f_low_(xx_), f_high_(xx_), alpha=0.2)
 
     # the rest are for visualization purposes, please adjust for different needs
+    n_plots = len(results_dict)
+    cmap = mpl.colormaps["tab10"].resampled(n_plots)
+    plt.gca().set_prop_cycle(cycler('color', cmap(np.linspace(0, 1, n_plots))))
     ax0.set_ylabel('AF', fontsize=30, rotation='horizontal',
                    fontname='Arial', labelpad=10)
     ax0.set_xlabel('Top%', fontsize=30, fontname='Arial')
@@ -114,4 +120,4 @@ def plot_AF(n_top: int, aggr_results: tuple[np.ndarray,  np.ndarray, np.ndarray,
     # plt.yticks([0, 1, 2, 4, 6, 8, 10], ['0', '1', '2',
     #            '4', '6', '8', '10'], fontname='Arial')
     plt.savefig(
-        FIG_PATH/f'af_{af_name}_{dataset_name}.png', dpi=300, format="png")
+        FIG_PATH/f'AF_{dataset_name}.png', dpi=300, format="png")
