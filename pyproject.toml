@@ -19,6 +19,7 @@ pyDOE = "^0.3.8"
 scipy = "^1.9.3"
 GPyOpt = "^1.2.6"
 ternary = "^0.1"
+asyncio = "^3.4.3"
 
 
 [build-system]
