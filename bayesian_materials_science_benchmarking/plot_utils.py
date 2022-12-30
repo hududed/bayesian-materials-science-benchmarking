@@ -70,10 +70,16 @@ def plot_EF(n_dataset: int, n_top: int, results_dict: Dict[str, tuple[np.ndarray
     n_plots = len(results_dict)
     cmap = mpl.colormaps["tab10"].resampled(n_plots)
     plt.gca().set_prop_cycle(cycler('color', cmap(np.linspace(0, 1, n_plots))))
+    font = font_manager.FontProperties(
+        family='Arial', size=26, style='normal')
+    leg = ax0.legend(prop=font, borderaxespad=0,  labelspacing=0.3,
+                     handlelength=1.2, handletextpad=0.3, frameon=False, loc=(0, 0.81))
+    for line in leg.get_lines():
+        line.set_linewidth(4)
     ax0.set_ylabel('EF', fontsize=30, rotation='horizontal',
                    fontname='Arial', labelpad=10)
     ax0.set_xlabel('learning cycle $i$', fontsize=30, fontname='Arial')
-    # ax0.set_xlim([0, 300])
+    ax0.set_xlim([50, 300])
     ax0.set_ylim([0, 2])
     ax0.set_xscale('log')
     ax0.spines['right'].set_visible(False)
@@ -106,18 +112,24 @@ def plot_AF(n_top: int, results_dict: Dict[str, tuple[np.ndarray, np.ndarray, np
     n_plots = len(results_dict)
     cmap = mpl.colormaps["tab10"].resampled(n_plots)
     plt.gca().set_prop_cycle(cycler('color', cmap(np.linspace(0, 1, n_plots))))
+    font = font_manager.FontProperties(
+        family='Arial', size=26, style='normal')
+    leg = ax0.legend(prop=font, borderaxespad=0,  labelspacing=0.3,
+                     handlelength=1.2, handletextpad=0.3, frameon=False, loc=(0, 0.81))
+    for line in leg.get_lines():
+        line.set_linewidth(4)
     ax0.set_ylabel('AF', fontsize=30, rotation='horizontal',
                    fontname='Arial', labelpad=10)
     ax0.set_xlabel('Top%', fontsize=30, fontname='Arial')
-    # ax0.set_xlim([100, 300])
-    ax0.set_ylim([0, 2])
+    # ax0.set_xlim([0, 1.0])
+    # ax0.set_ylim([0, 4,])
     ax0.spines['right'].set_visible(False)
     ax0.spines['top'].set_visible(False)
     ax0.xaxis.set_tick_params(labelsize=30)
     ax0.yaxis.set_tick_params(labelsize=30)
-    # plt.xticks([0, 0.2, 0.4, 0.6, 0.8, 1.0], ['0', '0.2',
-    #            '0.4', '0.6', '0.8', '1.0'], fontname='Arial')
-    # plt.yticks([0, 1, 2, 4, 6, 8, 10], ['0', '1', '2',
-    #            '4', '6', '8', '10'], fontname='Arial')
+    plt.xticks([0, 0.2, 0.4, 0.6, 0.8, 1.0], ['0', '0.2',
+               '0.4', '0.6', '0.8', '1.0'], fontname='Arial')
+    plt.yticks([0, 1, 2, 3, 4], ['0', '1', '2', '3',
+               '4'], fontname='Arial')
     plt.savefig(
         FIG_PATH/f'AF_{dataset_name}.png', dpi=300, format="png")
