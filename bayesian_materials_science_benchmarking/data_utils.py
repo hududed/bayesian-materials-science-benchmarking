@@ -1,7 +1,10 @@
 import pandas as pd
-from config import DATA_PATH
+from perf_utils import avg_, TopPercent
+from config import DATA_PATH, acq_funcs
 from copy import deepcopy
 from typing import Dict, Any
+from collections import defaultdict
+import numpy as np
 
 
 def load_data(name: str, invert_y: bool) -> tuple[pd.DataFrame, list[str], str]:
@@ -23,3 +26,11 @@ def load_data(name: str, invert_y: bool) -> tuple[pd.DataFrame, list[str], str]:
 def categorical_to_int(df: pd.DataFrame, col_name: str, categories: Dict[str, Any]) -> pd.DataFrame:
     df[col_name] = df[col_name].replace(categories)
     return df
+
+
+def create_results_dict_for(dataset_name: str, n_top: int, n_dataset: int) -> Dict[str, Any]:
+    d = defaultdict(list)
+    for af_name in acq_funcs:
+        results = np.load(f"{af_name}_{dataset_name}.npy", allow_pickle=True)
+        d[af_name] = avg_(TopPercent(results[3], n_top, n_dataset))
+    return dict(d)
