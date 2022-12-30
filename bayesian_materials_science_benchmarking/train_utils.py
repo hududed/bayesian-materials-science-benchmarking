@@ -2,12 +2,21 @@ from time import perf_counter
 import numpy as np
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.preprocessing import StandardScaler
-from model_utils import EI, PI
+from model_utils import EI, PI, LCB
 
 
-def train_ensemble(n_ensemble: int, n_init: int, n_dataset: int, n_est: int, X_feature: np.ndarray,
-                   y: np.ndarray, top_indices: list[int], seed_list: list[int], dataset_name: str) -> None:
+def train_ensemble(
+        n_ensemble: int, n_init: int, n_dataset: int, n_est: int, X_feature: np.ndarray,
+        y: np.ndarray, top_indices: list[int], seed_list: list[int], dataset_name: str,
+        acq_func: str, ratio: float = 0.2
+) -> None:
     time_before = perf_counter()
+
+    if acq_func == "LCB":
+        print(f"+++ {acq_func}{ratio}")
+    else:
+        print(f"+++ {acq_func}")
+
     # these will carry results along optimization sequence from all n_ensemble runs
     index_collection = []
     X_collection = []
@@ -78,10 +87,12 @@ def train_ensemble(n_ensemble: int, n_init: int, n_dataset: int, n_est: int, X_f
                 X_j = X_feature[j]
                 y_j = y[j]
                 # TODO: select Acquisiton Function for BO
-
-                # ac_value, ac_name = EI(X_j, RF_model, y_best, n_est)
-                ac_value, ac_name = PI(X_j, RF_model, y_best, n_est)
-                # ac_value, func_name = LCB(X_j, RF_model, 10)
+                if acq_func == 'EI':
+                    ac_value, ac_name = EI(X_j, RF_model, n_est, y_best)
+                if acq_func == 'PI':
+                    ac_value, ac_name = PI(X_j, RF_model, n_est, y_best)
+                if acq_func == 'LCB':
+                    ac_value, ac_name = LCB(X_j, RF_model, n_est, ratio)
 
                 if max_ac <= ac_value:
                     # print(f"old max_ac: {max_ac}, new ac: {ac_value}, next index: {j} X_j: {X_j} ")
@@ -117,4 +128,8 @@ def train_ensemble(n_ensemble: int, n_init: int, n_dataset: int, n_est: int, X_f
 
     master = np.array([index_collection, X_collection,
                       y_collection, TopCount_collection, total_time], dtype=object)
-    np.save(f"{ac_name}_{dataset_name}", master)
+
+    if acq_func == 'LCB':
+        np.save(f"{ac_name}{ratio}_{dataset_name}", master)
+    else:
+        np.save(f"{ac_name}_{dataset_name}", master)

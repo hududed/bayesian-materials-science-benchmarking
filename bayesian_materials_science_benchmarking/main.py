@@ -1,11 +1,13 @@
 import numpy as np
 from data_utils import load_data, categorical_to_int
-from config import n_ensemble, n_init, n_est, seed_list, categories
+from config import n_ensemble, n_init, n_est, seed_list, categories, ratios
 import math
 from train_utils import train_ensemble
 
+import asyncio
 
-def main() -> None:
+
+async def main() -> None:
     dataset_name = 'PI'
     unique_ds, feature_name, objective_name = load_data(
         dataset_name, invert_y=True)
@@ -22,9 +24,14 @@ def main() -> None:
     n_top = int(math.ceil(len(y)*.05))
     top_indices = list(unique_ds.sort_values(objective_name).head(n_top).index)
 
-    train_ensemble(n_ensemble, n_init, n_dataset, n_est, X_feature,
-                   y, top_indices, seed_list, dataset_name)
+    # for ratio in ratios:
+    #     train_ensemble(n_ensemble, n_init, n_dataset, n_est, X_feature,
+    #                    y, top_indices, seed_list, dataset_name, acq_func='LCB', ratio=ratio)
+    await asyncio.gather(*[train_ensemble(
+        n_ensemble, n_init, n_dataset, n_est, X_feature,
+        y, top_indices, seed_list, dataset_name, acq_func='LCB', ratio=ratio) for ratio in ratios]
+    )
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
