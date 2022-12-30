@@ -1,11 +1,14 @@
 from matplotlib import font_manager
 import matplotlib.pyplot as plt
+import matplotlib as mpl
+from cycler import cycler
 import numpy as np
 from perf_utils import EF, AF_interp1d, perf_random
 from config import FIG_PATH
+from typing import Dict, Any
 
 
-def plot_top_cycle(n_dataset: int, n_top: int, aggr_results: tuple[np.ndarray,  np.ndarray, np.ndarray, np.ndarray, np.ndarray], af_name: str, dataset_name: str) -> None:
+def plot_top_cycle(n_dataset: int, n_top: int, results_dict: Dict[str, tuple[np.ndarray,  np.ndarray, np.ndarray, np.ndarray, np.ndarray]], dataset_name: str) -> None:
 
     fig = plt.figure(figsize=(12, 12))
     ax0 = fig.add_subplot(111)
@@ -13,12 +16,16 @@ def plot_top_cycle(n_dataset: int, n_top: int, aggr_results: tuple[np.ndarray,  
     ax0.plot(np.arange(n_dataset)+1, perf_random(n_dataset, n_top)
              [0], '--', color='black', label='random baseline', linewidth=3.5)
 
-    ax0.plot(np.arange(n_dataset) + 1, np.round(aggr_results[0].astype(
-        np.double) / 0.005, 0) * 0.005, label='GP M52 : LCB$_{\overline{2}}$', color='#006d2c', linewidth=3)
-    ax0.fill_between(np.arange(n_dataset) + 1, np.round(aggr_results[1].astype(np.double) / 0.005, 0) * 0.005, np.round(
-        aggr_results[2].astype(np.double) / 0.005, 0) * 0.005, color='#006d2c', alpha=0.2)
+    for af_name, aggr_results in results_dict.items():
+        ax0.plot(np.arange(n_dataset) + 1, np.round(aggr_results[0].astype(
+            np.double) / 0.005, 0) * 0.005, label=f'RF : {af_name}', linewidth=3)
+        ax0.fill_between(np.arange(n_dataset) + 1, np.round(aggr_results[1].astype(np.double) / 0.005, 0) * 0.005, np.round(
+            aggr_results[2].astype(np.double) / 0.005, 0) * 0.005, alpha=0.2)
 
     # the rest are for visualization purposes, please adjust for different needs
+    n_plots = len(results_dict)
+    cmap = mpl.colormaps["tab10"].resampled(n_plots)
+    plt.gca().set_prop_cycle(cycler('color', cmap(np.linspace(0, 1, n_plots))))
     font = font_manager.FontProperties(
         family='Arial', size=26, style='normal')
     leg = ax0.legend(prop=font, borderaxespad=0,  labelspacing=0.3,
@@ -28,9 +35,9 @@ def plot_top_cycle(n_dataset: int, n_top: int, aggr_results: tuple[np.ndarray,  
     ax0.set_ylabel("Top%", fontname="Arial",
                    fontsize=30, rotation='vertical')
     plt.hlines(0.8, 0, 480, colors='k', linestyles='--', alpha=0.2)
-    ax0.set_xlim([100, 300])
+    # ax0.set_xlim([0, 300])
     ax0.set_ylim([0, 1.05])
-    # ax0.set_xscale('log')
+    ax0.set_xscale('log')
     ax0.set_xlabel('learning cycle $i$', fontsize=30, fontname='Arial')
     ax0.xaxis.set_tick_params(labelsize=30)
     ax0.yaxis.set_tick_params(labelsize=30)
@@ -63,9 +70,9 @@ def plot_EF(n_dataset: int, n_top: int, aggr_results: tuple[np.ndarray,  np.ndar
     ax0.set_ylabel('EF', fontsize=30, rotation='horizontal',
                    fontname='Arial', labelpad=10)
     ax0.set_xlabel('learning cycle $i$', fontsize=30, fontname='Arial')
-    ax0.set_xlim([100, 300])
+    # ax0.set_xlim([0, 300])
     ax0.set_ylim([0, 2])
-    # ax0.set_xscale('log')
+    ax0.set_xscale('log')
     ax0.spines['right'].set_visible(False)
     ax0.spines['top'].set_visible(False)
     ax0.xaxis.set_tick_params(labelsize=30)
