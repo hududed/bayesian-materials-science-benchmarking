@@ -32,6 +32,7 @@ def perf_random(n_dataset: int, n_top: int) -> tuple[np.ndarray, np.ndarray]:
         A[i] = A_i
         cA[i] = np.sum(A[:(i+1)])
 
+    # print(M, N, E/M, cA)
     return E / M, cA
 
 

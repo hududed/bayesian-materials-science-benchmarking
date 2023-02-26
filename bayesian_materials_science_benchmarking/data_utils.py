@@ -22,6 +22,12 @@ def load_data(name: str, invert_y: bool) -> tuple[pd.DataFrame, list[str], str]:
 
     return unique_ds, feature_name, objective_name
 
+# def normalize_data(df: pd.DataFrame) -> pd.DataFrame:
+#     s_scaler = StandardScaler()
+#     df_normalized_values = s_scaler.fit_transform(ds_grouped[list(raw_dataset.columns)].values)
+#     df_normalized = pd.DataFrame(df_normalized_values, columns = list(raw_dataset.columns))
+#     return ds_normalized
+
 
 def categorical_to_int(df: pd.DataFrame, col_name: str, categories: Dict[str, Any]) -> pd.DataFrame:
     df[col_name] = df[col_name].replace(categories)

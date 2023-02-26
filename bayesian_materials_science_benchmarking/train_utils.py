@@ -8,14 +8,14 @@ from model_utils import EI, PI, LCB
 def train_ensemble(
         n_ensemble: int, n_init: int, n_dataset: int, n_est: int, X_feature: np.ndarray,
         y: np.ndarray, top_indices: list[int], seed_list: list[int], dataset_name: str,
-        acq_func: str, ratio: float = 0.2
+        acq_func: str, top: float, ratio: float = 0.2
 ) -> None:
     time_before = perf_counter()
 
     if acq_func == "LCB":
-        print(f"+++ {acq_func}{ratio}")
+        print(f"+++ {top} {acq_func}{ratio}")
     else:
-        print(f"+++ {acq_func}")
+        print(f"+++ {top} {acq_func}")
 
     # these will carry results along optimization sequence from all n_ensemble runs
     index_collection = []
@@ -130,6 +130,6 @@ def train_ensemble(
                       y_collection, TopCount_collection, total_time], dtype=object)
 
     if acq_func == 'LCB':
-        np.save(f"{ac_name}{ratio}_{dataset_name}", master)
+        np.save(f"{top:.2f}_{ac_name}{ratio}_{dataset_name}", master)
     else:
-        np.save(f"{ac_name}_{dataset_name}", master)
+        np.save(f"{top:.2f}_{ac_name}_{dataset_name}", master)

@@ -4,13 +4,13 @@ import matplotlib as mpl
 from cycler import cycler
 import numpy as np
 from perf_utils import EF, AF_interp1d, perf_random
-from config import FIG_PATH
+from config import FIG_PATH, figsize
 from typing import Dict, Any
 
 
 def plot_top_cycle(n_dataset: int, n_top: int, results_dict: Dict[str, tuple[np.ndarray,  np.ndarray, np.ndarray, np.ndarray, np.ndarray]], dataset_name: str) -> None:
 
-    fig = plt.figure(figsize=(12, 12))
+    fig = plt.figure(figsize=figsize)
     ax0 = fig.add_subplot(111)
 
     ax0.plot(np.arange(n_dataset)+1, perf_random(n_dataset, n_top)
@@ -35,7 +35,7 @@ def plot_top_cycle(n_dataset: int, n_top: int, results_dict: Dict[str, tuple[np.
     ax0.set_ylabel("Top%", fontname="Arial",
                    fontsize=30, rotation='vertical')
     plt.hlines(0.8, 0, 480, colors='k', linestyles='--', alpha=0.2)
-    # ax0.set_xlim([0, 300])
+    # ax0.set_xlim([0, n_dataset+50])
     ax0.set_ylim([0, 1.05])
     ax0.set_xscale('log')
     ax0.set_xlabel('learning cycle $i$', fontsize=30, fontname='Arial')
@@ -49,12 +49,12 @@ def plot_top_cycle(n_dataset: int, n_top: int, results_dict: Dict[str, tuple[np.
     #            '0.4', '0.6', '0.8', '1.0'], fontname='Arial')
 
     plt.savefig(
-        FIG_PATH / f'top_{dataset_name}.png', dpi=300, format="png")
+        FIG_PATH / f'top_{dataset_name}.png', dpi=300, format="png", bbox_inches="tight")
 
 
 def plot_EF(n_dataset: int, n_top: int, results_dict: Dict[str, tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]], dataset_name: str) -> None:
 
-    fig = plt.figure(figsize=(12, 12))
+    fig = plt.figure(figsize=figsize)
     ax0 = fig.add_subplot(111)
 
     ax0.plot(np.linspace(1, n_dataset, n_dataset), np.ones(n_dataset),
@@ -79,7 +79,7 @@ def plot_EF(n_dataset: int, n_top: int, results_dict: Dict[str, tuple[np.ndarray
     ax0.set_ylabel('EF', fontsize=30, rotation='horizontal',
                    fontname='Arial', labelpad=10)
     ax0.set_xlabel('learning cycle $i$', fontsize=30, fontname='Arial')
-    ax0.set_xlim([50, 300])
+    ax0.set_xlim([50, n_dataset+50])
     ax0.set_ylim([0, 2])
     ax0.set_xscale('log')
     ax0.spines['right'].set_visible(False)
@@ -92,11 +92,11 @@ def plot_EF(n_dataset: int, n_top: int, results_dict: Dict[str, tuple[np.ndarray
     #            '4', '6', '8', '10'], fontname='Arial')
 
     plt.savefig(
-        FIG_PATH / f'EF_{dataset_name}.png', dpi=300, format="png")
+        FIG_PATH / f'EF_{dataset_name}.png', dpi=300, format="png", bbox_inches="tight")
 
 
 def plot_AF(n_top: int, results_dict: Dict[str, tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]], dataset_name: str) -> None:
-    fig = plt.figure(figsize=(12, 12))
+    fig = plt.figure(figsize=figsize)
     ax0 = fig.add_subplot(111)
 
     ax0.plot(np.linspace(0, 1, 200), np.ones(200), '--',
@@ -132,4 +132,4 @@ def plot_AF(n_top: int, results_dict: Dict[str, tuple[np.ndarray, np.ndarray, np
     plt.yticks([0, 1, 2, 3, 4], ['0', '1', '2', '3',
                '4'], fontname='Arial')
     plt.savefig(
-        FIG_PATH/f'AF_{dataset_name}.png', dpi=300, format="png")
+        FIG_PATH/f'AF_{dataset_name}.png', dpi=300, format="png", bbox_inches="tight")

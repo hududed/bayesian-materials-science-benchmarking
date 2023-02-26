@@ -18,7 +18,7 @@ def RF_pred(X: np.ndarray, RF_model: RandomForestRegressor, n_est: int = 100) ->
 
 def EI(X: np.ndarray, RF_model: RandomForestRegressor, n_est: int, y_best: float) -> tuple[float, str]:
     mean, std = RF_pred(X, RF_model, n_est)
-    with np.errstate(divide='raise'):
+    with np.errstate(divide='raise', invalid='raise'):
         try:
             z = (y_best - mean)/std
         except FloatingPointError:  # divide by zero numpy warning
@@ -31,7 +31,7 @@ def EI(X: np.ndarray, RF_model: RandomForestRegressor, n_est: int, y_best: float
 
 def PI(X: np.ndarray, RF_model: RandomForestRegressor, n_est: int, y_best: float) -> tuple[float, str]:
     mean, std = RF_pred(X, RF_model, n_est)
-    with np.errstate(divide='raise'):
+    with np.errstate(divide='raise', invalid='raise'):
         try:
             z = (y_best - mean)/std
         except FloatingPointError:

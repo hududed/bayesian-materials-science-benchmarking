@@ -6,6 +6,8 @@ import numpy as np
 DATA_PATH = Path('datasets')
 FIG_PATH = Path('figures')
 
+# plotting params
+figsize = (10, 6)
 
 # benchmarking framework params
 n_ensemble = 50
@@ -36,12 +38,14 @@ categories = {
 ratios = [0.1, 0.2, 0.5, 1., 2., 5., 10.]
 
 # list of acquisition functions
-top = .05
+tops = [0.05, 0.10, 0.20]
 raw_acq_funcs = [
-    'EI', 'PI',
+    'EI',
+    # 'PI',
     'LCB0.1', 'LCB0.2', 'LCB0.5', 'LCB1.0',
     'LCB2.0',
-    # 'LCB5.0',
-    # 'LCB10.0'
+    'LCB5.0',
+    'LCB10.0'
 ]
-acq_funcs = [f"{top}_{raw_acq_func}" for raw_acq_func in raw_acq_funcs]
+acq_funcs = [
+    f"{tops[-1]:.2f}_{raw_acq_func}" for raw_acq_func in raw_acq_funcs]
